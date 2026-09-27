@@ -1,0 +1,97 @@
+name: Dependency and security checks
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  schedule:
+    # Weekly, to catch vulnerabilities published after the last change
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  dependency-review:
+    name: Review dependency changes
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/dependency-review-action@v5
+        with:
+          fail-on-severity: high
+
+  dependency-submission:
+    name: Submit dependency graph
+    # Gives Dependabot alerts and dependency review the full (transitive) Maven dependency tree
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '11'
+          cache: maven
+
+      - uses: advanced-security/maven-dependency-submission-action@a64327a7329c9939cf675e458452febe1894a70c # v6.0.1
+
+  bundled-libraries:
+    name: Scan bundled libraries
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '11'
+          cache: maven
+
+      # Tests run in the Build workflow; only the packaged plugin is needed here.
+      - name: Build plugin
+        run: mvn -B -ntp package -DskipTests -Dspotbugs.skip
+
+      # Only the libraries in WEB-INF/lib ship with the plugin; everything else comes from Jenkins core or other plugins.
+      - name: Extract bundled libraries
+        run: unzip -q target/proxmox.hpi 'WEB-INF/lib/*' -d target/hpi
+
+      - name: Report vulnerabilities to code scanning
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: rootfs
+          scan-ref: target/hpi
+          format: sarif
+          output: trivy-results.sarif
+
+      - name: Upload scan results
+        # Pull requests from forks get a read-only token and cannot upload
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-results.sarif
+          category: bundled-libraries
+
+      - name: Fail on high and critical vulnerabilities
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: rootfs
+          scan-ref: target/hpi
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+          skip-setup-trivy: true
