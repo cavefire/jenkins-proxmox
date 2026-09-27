@@ -1,0 +1,9 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+    <f:entry title="${%Description}">
+        <f:readOnlyTextbox value="${instance.nodeDescription}" />
+    </f:entry>
+    <f:entry title="${%Build}">
+        <f:readOnlyTextbox value="${instance.buildUrl}" />
+    </f:entry>
+</j:jelly>

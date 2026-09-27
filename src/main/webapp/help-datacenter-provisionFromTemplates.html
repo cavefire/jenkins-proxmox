@@ -1,0 +1,35 @@
+<div>
+    <p>
+        Creates a single-use agent for every build that asks for a label provided by a Proxmox template, and deletes
+        it when the build has finished.
+    </p>
+    <p>
+        Templates (QEMU or LXC) are used when they are tagged <code>jenkins-template</code>. Their other tags are the
+        labels they provide, e.g. a template tagged <code>jenkins-template;ubuntu2404</code> serves
+        <code>agent { label 'ubuntu2404' }</code>. Clones get the tag <code>jenkins-instance</code> and notes naming
+        the build that uses them. A clone is only deleted if its notes still name that build.
+    </p>
+    <p>
+        Jenkins connects to the clones with SSH; with SSH credentials for the Proxmox hosts, through the host running the clone. Templates therefore need an SSH server and Java. The clone's IP address is read from Proxmox, which
+        for VMs requires the QEMU guest agent in the template (enabled in the VM options).
+    </p>
+    <p>
+        In a cluster, each clone starts on the least loaded online node that has a free device for every PCI, USB
+        and directory resource mapping the template uses (e.g. <code>hostpci0: mapping=gpu</code>). Templates using
+        devices without a mapping only run on their own node. Templates on local storage are fully cloned and
+        migrated to the chosen node, unless a template with the same tags exists on that node.
+    </p>
+    <p>
+        Settings differing per template (e.g. Windows) go into the template's notes, one per line:
+    </p>
+    <pre>
+jenkins-credentials: windows-ssh
+jenkins-remote-fs: C:\jenkins
+jenkins-java: C:\Program Files\Java\jdk-11\bin\java.exe
+jenkins-jvm-options: -Xmx2g
+jenkins-ssh-port: 22
+jenkins-network: 10.10.10.0/24</pre>
+    <p>
+        <code>jenkins-network</code> selects the address to use when a clone has several.
+    </p>
+</div>

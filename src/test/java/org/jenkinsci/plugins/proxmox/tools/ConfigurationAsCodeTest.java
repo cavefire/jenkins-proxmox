@@ -42,6 +42,15 @@ public class ConfigurationAsCodeTest {
         assertThat(cloud.getUsername(), is("proxmox-user"));
         assertThat(cloud.getPassword(), hasPlainText("proxmox-pass"));
         assertThat(cloud.getIgnoreSSL(), is(true));
+        assertThat(cloud.isProvisionFromTemplates(), is(true));
+        assertThat(cloud.getGuestCredentialsId(), is("guest-ssh"));
+        assertThat(cloud.getSshCredentialsId(), is("pve-ssh"));
+        assertThat(cloud.usesSsh(), is(true));
+        assertThat(cloud.getInstanceCap(), is(3));
+        assertThat(cloud.getFirstVmid(), is(10000));
+        assertThat(cloud.getSshPort(), is(22));
+        assertThat(cloud.getStartupTimeoutSeconds(), is(600));
+        assertThat(cloud.getAgentRemoteFS(), is("/home/jenkins/agent"));
 
         List<Computer> computers = Arrays.asList(r.jenkins.getComputers());
         assertThat(computers, hasSize(2));
@@ -80,10 +89,15 @@ public class ConfigurationAsCodeTest {
         String expected = String.join(
                 "\n",
                 "datacenter:",
+                "  firstVmid: 10000",
+                "  guestCredentialsId: \"guest-ssh\"",
                 "  hostname: \"company-proxmox\"",
                 "  ignoreSSL: true",
+                "  instanceCap: 3",
                 "  password: \"" + password.getEncryptedValue() + "\"",
+                "  provisionFromTemplates: true",
                 "  realm: \"pve\"",
+                "  sshCredentialsId: \"pve-ssh\"",
                 "  username: \"proxmox-user\"",
                 "");
 

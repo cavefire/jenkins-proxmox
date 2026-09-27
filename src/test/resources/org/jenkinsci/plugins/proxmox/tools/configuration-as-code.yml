@@ -9,6 +9,11 @@ jenkins:
         password: "proxmox-pass"
         realm: "pve"
         username: "proxmox-user"
+        provisionFromTemplates: true
+        guestCredentialsId: "guest-ssh"
+        sshCredentialsId: "pve-ssh"
+        firstVmid: 10000
+        instanceCap: 3
   nodes:
     - virtualMachineSlave:
         datacenterDescription: "proxmox-user@pve - company-proxmox"
