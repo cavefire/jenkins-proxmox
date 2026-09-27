@@ -97,9 +97,44 @@ jenkins-network: 10.10.10.0/24
 `jenkins-credentials` is the ID of a Jenkins "SSH username with private key" (or username/password) credential.
 `jenkins-network` picks the address to use if a clone has several.
 
-The Proxmox API user needs permission to clone, configure, start, stop and delete guests and to read guest agent
-data (`VM.Clone`, `VM.Allocate`, `VM.Config.*`, `VM.PowerMgmt`, `VM.Audit`, `VM.Monitor` or
-`VM.GuestAgent.Audit` on Proxmox 9, `Datastore.AllocateSpace`).
+##### Permissions of the Proxmox API user
+
+Set "Resource pool for clones" (e.g. `jenkins`) so that Jenkins may only change and delete its own clones: clones
+are created in that pool, and the rights to modify guests are granted on the pool only. Proxmox permissions cannot
+be limited to a range of VM IDs, so a pool is the way to do it.
+
+| Privilege | Needed on | Used for |
+|---|---|---|
+| `VM.Audit` | `/vms` | finding templates, free VM IDs and devices in use (read only) |
+| `VM.Clone` | each template (`/vms/<id>`, or a pool holding the templates) | cloning templates |
+| `VM.Allocate`, `VM.Config.Options`, `VM.PowerMgmt`, `VM.Migrate` | `/pool/<pool>` | creating, tagging, starting, stopping, migrating and deleting clones |
+| `VM.GuestAgent.Audit` (Proxmox 9) or `VM.Monitor` (Proxmox 8) | `/pool/<pool>` | reading the clones' IP addresses from the QEMU guest agent |
+| `Pool.Allocate` | `/pool/<pool>` | adding clones to the pool |
+| `Datastore.Audit`, `Datastore.AllocateSpace` | `/storage` | listing storages and allocating clone disks |
+| `Sys.Audit` | `/nodes` | node load and cluster status |
+| `SDN.Use` | `/sdn/zones` | attaching clones to bridges |
+| `Mapping.Audit`, `Mapping.Use` | `/mapping` | only for templates with PCI, USB or directory resource mappings |
+
+For example, on Proxmox 9 (use `VM.Monitor` instead of `VM.GuestAgent.Audit` on Proxmox 8), with the templates
+in a pool `jenkins-templates`:
+
+```
+pveum pool add jenkins
+pveum role add JenkinsRead -privs "VM.Audit Datastore.Audit Sys.Audit Mapping.Audit"
+pveum role add JenkinsTemplates -privs "VM.Audit VM.Clone"
+pveum role add JenkinsClones -privs "VM.Audit VM.Allocate VM.Config.Options VM.PowerMgmt VM.Migrate VM.GuestAgent.Audit Pool.Allocate"
+pveum role add JenkinsUse -privs "Datastore.AllocateSpace SDN.Use Mapping.Use"
+pveum user add jenkins@pve --password '<password>'
+pveum acl modify / -user jenkins@pve -role JenkinsRead
+pveum acl modify /pool/jenkins-templates -user jenkins@pve -role JenkinsTemplates
+pveum acl modify /pool/jenkins -user jenkins@pve -role JenkinsClones
+pveum acl modify /storage -user jenkins@pve -role JenkinsUse
+pveum acl modify /sdn/zones -user jenkins@pve -role JenkinsUse
+pveum acl modify /mapping -user jenkins@pve -role JenkinsUse
+```
+
+Jenkins can then see all guests, but only clone the templates and change or delete the guests in the `jenkins`
+pool. Together with "First VM ID for clones" (e.g. `10000`), its clones are also easy to spot by ID.
 
 The plugin supports Jenkins 2.319.1 and newer.
 

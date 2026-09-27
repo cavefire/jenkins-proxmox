@@ -53,6 +53,10 @@
         <f:entry title="${%Instance cap}" field="instanceCap">
             <f:number default="10" min="1" />
         </f:entry>
+        <f:entry title="${%Resource pool for clones}" field="pool"
+                 description="${%Clones are created in this Proxmox pool, e.g. jenkins. Lets you limit the API user's rights to change and delete guests to that pool. Empty adds them to no pool.}">
+            <f:textbox />
+        </f:entry>
         <f:advanced>
             <f:entry title="${%Full clone}" field="fullClone"
                      description="${%Linked clones are faster; full clones do not depend on the template's disks.}">

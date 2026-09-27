@@ -86,6 +86,8 @@ public class Datacenter extends Cloud {
     private int instanceCap = DEFAULT_INSTANCE_CAP;
     private boolean fullClone;
     private String cloneStorage;
+    /** Resource pool the clones are created in, so the API user's rights can be limited to it. */
+    private String pool;
     private int startupTimeoutSeconds = DEFAULT_STARTUP_TIMEOUT;
     /** Lowest VM ID for clones; 0 uses the next ID Proxmox suggests. */
     private int firstVmid;
@@ -418,7 +420,8 @@ public class Datacenter extends Cloud {
                             InstanceNotes.render(instanceId, nodeUrl, null),
                             full,
                             full ? cloneStorage : null,
-                            cloneTarget);
+                            cloneTarget,
+                            pool);
                 } catch (ProxmoxException e) {
                     // Another guest may have taken the id meanwhile, so retry with a new one.
                     lastError = e;
@@ -678,6 +681,15 @@ public class Datacenter extends Cloud {
     @DataBoundSetter
     public void setCloneStorage(String cloneStorage) {
         this.cloneStorage = Util.fixEmptyAndTrim(cloneStorage);
+    }
+
+    public String getPool() {
+        return pool;
+    }
+
+    @DataBoundSetter
+    public void setPool(String pool) {
+        this.pool = Util.fixEmptyAndTrim(pool);
     }
 
     public int getFirstVmid() {

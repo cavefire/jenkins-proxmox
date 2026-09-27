@@ -35,6 +35,7 @@ public class ConfigurationAsCodeTest {
         assertThat(cloud.getSshCredentialsId(), is("pve-ssh"));
         assertThat(cloud.usesSsh(), is(true));
         assertThat(cloud.getInstanceCap(), is(3));
+        assertThat(cloud.getPool(), is("jenkins"));
         assertThat(cloud.getFirstVmid(), is(10000));
         assertThat(cloud.getSshPort(), is(22));
         assertThat(cloud.getStartupTimeoutSeconds(), is(600));
@@ -63,6 +64,7 @@ public class ConfigurationAsCodeTest {
                 "  ignoreSSL: true",
                 "  instanceCap: 3",
                 "  password: \"" + password.getEncryptedValue() + "\"",
+                "  pool: \"jenkins\"",
                 "  realm: \"pve\"",
                 "  sshCredentialsId: \"pve-ssh\"",
                 "  username: \"proxmox-user\"",

@@ -13,3 +13,4 @@ jenkins:
         sshCredentialsId: "pve-ssh"
         firstVmid: 10000
         instanceCap: 3
+        pool: "jenkins"

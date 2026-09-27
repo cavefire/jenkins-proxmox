@@ -401,7 +401,8 @@ public class Connector {
             String description,
             boolean full,
             String storage,
-            String target)
+            String target,
+            String pool)
             throws ProxmoxException {
         Map<String, Object> params = new HashMap<>();
         params.put("newid", newid);
@@ -409,6 +410,7 @@ public class Connector {
         params.put("qemu".equals(type) ? "name" : "hostname", name);
         params.put("description", description);
         params.put("full", full ? 1 : 0);
+        params.put("pool", pool);
         if (full && storage != null && !storage.isEmpty()) {
             params.put("storage", storage);
         }
