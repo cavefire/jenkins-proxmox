@@ -50,7 +50,7 @@ public class OrphanedInstanceCleanup extends AsyncPeriodicWork {
     protected void execute(TaskListener listener) throws IOException, InterruptedException {
         Set<String> seen = new HashSet<>();
         for (Cloud cloud : Jenkins.get().clouds) {
-            if (cloud instanceof Datacenter && ((Datacenter) cloud).isProvisionFromTemplates()) {
+            if (cloud instanceof Datacenter) {
                 sweep(((Datacenter) cloud).proxmoxInstance(), listener, seen);
             }
         }

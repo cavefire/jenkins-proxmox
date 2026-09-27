@@ -14,7 +14,7 @@
   <packaging>hpi</packaging>
 
   <name>Jenkins Proxmox plugin</name>
-  <description>This plugin allows Jenkins to use Proxmox virtual machines as slaves.</description>
+  <description>Provisions single-use Jenkins agents from Proxmox VM and container templates.</description>
   <url>https://github.com/jenkinsci/proxmox-plugin</url>
 
   <organization>

@@ -74,7 +74,6 @@ public class Datacenter extends Cloud {
     private transient Connector pveConnector;
 
     // Provisioning of single-use agents from templates tagged "jenkins-template"
-    private boolean provisionFromTemplates;
     private String guestCredentialsId;
     private String agentRemoteFS;
     private String javaPath;
@@ -147,13 +146,13 @@ public class Datacenter extends Cloud {
 
     @Override
     public boolean canProvision(CloudState state) {
-        return provisionFromTemplates && findTemplate(state.getLabel()) != null;
+        return findTemplate(state.getLabel()) != null;
     }
 
     @Override
     public Collection<NodeProvisioner.PlannedNode> provision(CloudState state, int excessWorkload) {
         Label label = state.getLabel();
-        ProxmoxTemplate template = provisionFromTemplates ? findTemplate(label) : null;
+        ProxmoxTemplate template = findTemplate(label);
         if (template == null) {
             return Collections.emptySet();
         }
@@ -608,15 +607,6 @@ public class Datacenter extends Cloud {
                 CredentialsMatchers.withId(id));
     }
 
-    public boolean isProvisionFromTemplates() {
-        return provisionFromTemplates;
-    }
-
-    @DataBoundSetter
-    public void setProvisionFromTemplates(boolean provisionFromTemplates) {
-        this.provisionFromTemplates = provisionFromTemplates;
-    }
-
     public String getGuestCredentialsId() {
         return guestCredentialsId;
     }
@@ -742,41 +732,6 @@ public class Datacenter extends Cloud {
             pveConnector = new Connector(hostname, username, realm, password, ignoreSSL, proxmoxSsh());
         }
         return pveConnector;
-    }
-
-    public List<String> getNodes() {
-        Connector pveConnector = proxmoxInstance();
-        try {
-            return pveConnector.getNodes();
-        } catch (LoginException e) {
-            return new ArrayList<String>();
-        }
-    }
-
-    public HashMap<String, Integer> getQemuMachines(String node) {
-        if (node == null || node.isEmpty()) {
-            return new HashMap<String, Integer>();
-        }
-
-        Connector pveConnector = proxmoxInstance();
-        try {
-            return pveConnector.getQemuMachines(node);
-        } catch (LoginException e) {
-            return new HashMap<String, Integer>();
-        }
-    }
-
-    public List<String> getQemuMachineSnapshots(String node, Integer vmid) {
-        if (node == null || node.isEmpty() || vmid < 1) {
-            return new ArrayList<String>();
-        }
-
-        Connector pveConnector = proxmoxInstance();
-        try {
-            return pveConnector.getQemuMachineSnapshots(node, vmid);
-        } catch (LoginException e) {
-            return new ArrayList<String>();
-        }
     }
 
     @Extension

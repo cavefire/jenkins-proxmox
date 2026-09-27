@@ -1,6 +1,6 @@
 # Jenkins Proxmox Plugin
 
-Use Proxmox virtual machines and containers as agents in Jenkins
+Single-use Jenkins agents from Proxmox VM and container templates
 
 [![Build](https://github.com/cavefire/jenkins-proxmox/actions/workflows/build.yml/badge.svg)](https://github.com/cavefire/jenkins-proxmox/actions/workflows/build.yml)
 [![Dependency and security checks](https://github.com/cavefire/jenkins-proxmox/actions/workflows/security.yml/badge.svg)](https://github.com/cavefire/jenkins-proxmox/actions/workflows/security.yml)
@@ -9,39 +9,19 @@ Use Proxmox virtual machines and containers as agents in Jenkins
 
 ## Description
 
-This plugin allows the use of Proxmox guests as agents in Jenkins, in two ways:
-
--   **Virtual machine agents:** existing Proxmox VMs, rolled back to a snapshot and started when the agent is used.
--   **Single-use agents from templates:** a fresh clone of a template (VM or LXC container) for every build,
-    deleted after the build.
+This plugin gives every Jenkins build a fresh Proxmox guest: it clones a template (VM or LXC container) when a
+build needs an agent and deletes the clone after the build.
 
 This is a fork of [jenkinsci/proxmox-plugin](https://github.com/jenkinsci/proxmox-plugin) that adds single-use
 agents and supports Jenkins 2.319.1 and newer.
 
-## Limitations
-
--   Virtual machine agents: only QEMU virtual machines are supported.
--   Virtual machine agents: no option to avoid rolling back to a snapshot on agent start up.
--   Virtual machine agents: no checking on virtual machine ready state/errors during rollback.
-
 ## Configuration
 
-#### Datacenter cloud
+To add a Proxmox datacenter cloud, click on "Manage Jenkins" then "Configure System". In the "Cloud" section
+click "Add cloud" and select "Datacenter". The cloud creates a fresh agent for every build from a template, and
+deletes it afterwards.
 
-To add a new Proxmox datacenter cloud, click on "Manage Jenkins" then
-"Configure System". In the "Cloud" section click "Add cloud" and select
-"Datacenter".
-
-#### Virtual machine agents
-
-To add agents click on "Manage Jenkins" then "Manage Nodes". Select the
-node type "Agent virtual machine running on a Proxmox datacenter." and
-enter a name for the node.
-
-#### Single-use agents from templates
-
-A Proxmox datacenter cloud can also create a fresh agent for every build from a template, and delete it
-afterwards. Enable "Provision agents from templates" in the cloud configuration.
+#### Templates
 
 -   Templates (QEMU VMs or LXC containers) are used when they carry the Proxmox tag `jenkins-template`. All other
     tags are the labels they provide: a template tagged `jenkins-template;ubuntu2404` serves

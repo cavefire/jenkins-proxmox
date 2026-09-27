@@ -37,9 +37,8 @@
     <f:validateButton title="${%Test Connection}" progress="${%Testing...}" method="testConnection"
                       with="hostname,username,realm,password,ignoreSSL,sshCredentialsId,sshPort"/>
 
-    <f:optionalBlock title="${%Provision agents from templates}" field="provisionFromTemplates" inline="true"
-                     help="/plugin/proxmox/help-datacenter-provisionFromTemplates.html">
-        <f:entry title="${%SSH credentials for clones}" field="guestCredentialsId"
+    <f:section title="${%Agents from templates}">
+        <f:entry title="${%SSH credentials for clones}" field="guestCredentialsId" help="/plugin/proxmox/help-datacenter-templates.html"
                  description="${%Default; a template can override it with a jenkins-credentials line in its notes.}">
             <c:select />
         </f:entry>
@@ -73,6 +72,6 @@
         </f:advanced>
         <f:validateButton title="${%Test provisioning}" progress="${%Testing...}" method="testProvisioning"
                           with="hostname,username,realm,password,ignoreSSL,guestCredentialsId,agentRemoteFS,javaPath,sshCredentialsId,sshPort"/>
-    </f:optionalBlock>
+    </f:section>
 
 </j:jelly>

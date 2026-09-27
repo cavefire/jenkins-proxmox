@@ -1,4 +1,4 @@
 <?jelly escape-by-default='true'?>
 <div>
-  Enables proxmox machines to be used as agents. Supports reverting from a snapshot
+  Provisions single-use Jenkins agents by cloning Proxmox VM and container templates
 </div>
