@@ -1,22 +1,28 @@
 # Jenkins Proxmox Plugin
 
-Use Proxmox virtual machines as agents in Jenkins
+Use Proxmox virtual machines and containers as agents in Jenkins
 
-[![Proxmox Plugin](https://img.shields.io/jenkins/plugin/v/proxmox.svg)](https://plugins.jenkins.io/proxmox)
-[![ChangeLog](https://img.shields.io/github/release/jenkinsci/proxmox-plugin.svg?label=changelog)](https://github.com/jenkinsci/proxmox-plugin/releases/latest)
-[![Installs](https://img.shields.io/jenkins/plugin/i/proxmox.svg?color=blue)](https://plugins.jenkins.io/proxmox)
-[![License](https://img.shields.io/github/license/jenkinsci/proxmox-plugin.svg)](LICENSE)
-[![Build Status](https://ci.jenkins.io/job/Plugins/job/proxmox-plugin/job/master/badge/icon)](https://ci.jenkins.io/job/Plugins/job/proxmox-plugin/job/master/)
+[![Build](https://github.com/cavefire/jenkins-proxmox/actions/workflows/build.yml/badge.svg)](https://github.com/cavefire/jenkins-proxmox/actions/workflows/build.yml)
+[![Dependency and security checks](https://github.com/cavefire/jenkins-proxmox/actions/workflows/security.yml/badge.svg)](https://github.com/cavefire/jenkins-proxmox/actions/workflows/security.yml)
+[![Release](https://img.shields.io/github/v/release/cavefire/jenkins-proxmox?label=release)](https://github.com/cavefire/jenkins-proxmox/releases/latest)
+[![License](https://img.shields.io/github/license/cavefire/jenkins-proxmox.svg)](LICENSE)
 
 ## Description
 
-This plugin allows the use of Proxmox virtual machines as agents in Jenkins.
+This plugin allows the use of Proxmox guests as agents in Jenkins, in two ways:
+
+-   **Virtual machine agents:** existing Proxmox VMs, rolled back to a snapshot and started when the agent is used.
+-   **Single-use agents from templates:** a fresh clone of a template (VM or LXC container) for every build,
+    deleted after the build.
+
+This is a fork of [jenkinsci/proxmox-plugin](https://github.com/jenkinsci/proxmox-plugin) that adds single-use
+agents and supports Jenkins 2.319.1 and newer.
 
 ## Limitations
 
--   Only Qemu virtual machines supported (at the moment).
--   No option to avoid rolling back to a snapshot on agent start up.
--   No checking on virtual machine ready state/errors during rollback.
+-   Virtual machine agents: only QEMU virtual machines are supported.
+-   Virtual machine agents: no option to avoid rolling back to a snapshot on agent start up.
+-   Virtual machine agents: no checking on virtual machine ready state/errors during rollback.
 
 ## Configuration
 
@@ -117,17 +123,52 @@ data (`VM.Clone`, `VM.Allocate`, `VM.Config.*`, `VM.PowerMgmt`, `VM.Audit`, `VM.
 
 The plugin supports Jenkins 2.319.1 and newer.
 
-## Manually Installing
- 1. Clone this repo.
- 2. Run ``mvn clean package``. 
- 3. Go to Jenkins in a web browser.
- 4. Click on *"Manage Jenkins"*, select *"Manage Plugins"*. 
- 5. Click on the *"Advanced"* tab then upload the file `target/proxmox.hpi` under the *"Upload Plugin"* section.
- 
-To run directly a Jenkins test instance with the plugin, run ``mvn hpi:run``.
+## Installing
 
+1.  Download `proxmox.hpi`:
+    -   a released version from [GitHub Releases](https://github.com/cavefire/jenkins-proxmox/releases), or
+    -   the latest build of any branch or pull request: open its run of the
+        [Build workflow](https://github.com/cavefire/jenkins-proxmox/actions/workflows/build.yml) and download the
+        `proxmox-plugin` artifact (a zip containing `proxmox.hpi`).
+2.  In Jenkins, go to *"Manage Jenkins"* → *"Manage Plugins"* → *"Advanced"* and upload `proxmox.hpi` under
+    *"Upload Plugin"*.
+3.  Restart Jenkins.
 
-## ChangLog
--   For recent versions, see [GitHub Releases](https://github.com/jenkinsci/proxmox-plugin/releases)
+## Building
+
+Building needs JDK 11 and Maven 3.
+
+```
+mvn clean verify
+```
+
+runs the tests and writes the plugin to `target/proxmox.hpi`. `mvn hpi:run` starts a Jenkins test instance with
+the plugin installed.
+
+## Continuous integration
+
+GitHub Actions runs these workflows:
+
+-   **Build** (every pull request, push to `master` and tag): runs the tests and, when they pass, builds
+    `proxmox.hpi` and attaches it to the run as the `proxmox-plugin` artifact. The plugin version is
+    `<tag>-<commits since tag>-<commit hash>` (e.g. `0.8.0-3-1a2b3c4`), based on the latest tag, or
+    `0.0.0-<commits>-<commit hash>` before the first tag.
+-   **Dependency and security checks** (every pull request, push to `master` and weekly):
+    -   pull requests fail when they add a dependency with a known high or critical vulnerability;
+    -   the libraries bundled in `proxmox.hpi` are scanned with Trivy, failing on fixable high or critical
+        vulnerabilities and reporting all findings under *Security* → *Code scanning*;
+    -   pushes to `master` submit the full Maven dependency tree, so Dependabot alerts cover transitive dependencies.
+-   **Jenkins Security Scan** (every pull request and push to `master`): Jenkins-specific CodeQL checks.
+
+Dependabot proposes updates for Maven dependencies and actions monthly.
+
+To publish a release, push a tag named after the version, e.g. `0.8.0` or `v0.8.0`. The Build workflow then builds
+the plugin with the tag as version (a leading `v` is dropped) and creates a GitHub release with `proxmox.hpi`
+attached.
+
+## Changelog
+
+-   For recent versions, see [GitHub Releases](https://github.com/cavefire/jenkins-proxmox/releases)
+-   For upstream versions, see the [upstream releases](https://github.com/jenkinsci/proxmox-plugin/releases)
 -   For versions 0.2.1 and older, see the [Wiki page](https://wiki.jenkins.io/display/JENKINS/Proxmox+Plugin)
 
