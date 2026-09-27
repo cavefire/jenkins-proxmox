@@ -21,7 +21,7 @@ import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.proxmox.pve2api.Connector;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.verb.POST;
 
 /**
@@ -135,7 +135,7 @@ public class Datacenter extends Cloud {
         }
 
         @Override
-        public boolean configure(StaplerRequest2 req, JSONObject o) throws FormException {
+        public boolean configure(StaplerRequest req, JSONObject o) throws FormException {
             save();
             return super.configure(req, o);
         }
