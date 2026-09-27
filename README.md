@@ -105,12 +105,12 @@ The plugin supports Jenkins 2.319.1 and newer.
 
 ## Installing
 
-1.  Download `proxmox.hpi`:
+1.  Download `proxmox-<version>.hpi`:
     -   a released version from [GitHub Releases](https://github.com/cavefire/jenkins-proxmox/releases), or
     -   the latest build of any branch or pull request: open its run of the
         [Build workflow](https://github.com/cavefire/jenkins-proxmox/actions/workflows/build.yml) and download the
-        `proxmox-plugin` artifact (a zip containing `proxmox.hpi`).
-2.  In Jenkins, go to *"Manage Jenkins"* → *"Manage Plugins"* → *"Advanced"* and upload `proxmox.hpi` under
+        `proxmox-<version>` artifact (a zip containing `proxmox-<version>.hpi`).
+2.  In Jenkins, go to *"Manage Jenkins"* → *"Manage Plugins"* → *"Advanced"* and upload the `.hpi` file under
     *"Upload Plugin"*.
 3.  Restart Jenkins.
 
@@ -130,12 +130,12 @@ the plugin installed.
 GitHub Actions runs these workflows:
 
 -   **Build** (every pull request, push to `master` and tag): runs the tests and, when they pass, builds
-    `proxmox.hpi` and attaches it to the run as the `proxmox-plugin` artifact. The plugin version is
+    `proxmox-<version>.hpi` and attaches it to the run as the `proxmox-<version>` artifact. The plugin version is
     `<tag>-<commits since tag>-<commit hash>` (e.g. `0.8.0-3-1a2b3c4`), based on the latest tag, or
     `0.0.0-<commits>-<commit hash>` before the first tag.
 -   **Dependency and security checks** (every pull request, push to `master` and weekly):
     -   pull requests fail when they add a dependency with a known high or critical vulnerability;
-    -   the libraries bundled in `proxmox.hpi` are scanned with Trivy, failing on fixable high or critical
+    -   the libraries bundled in the plugin are scanned with Trivy, failing on fixable high or critical
         vulnerabilities and reporting all findings under *Security* → *Code scanning*;
     -   pushes to `master` submit the full Maven dependency tree, so Dependabot alerts cover transitive dependencies.
 -   **Jenkins Security Scan** (every pull request and push to `master`): Jenkins-specific CodeQL checks.
@@ -143,7 +143,7 @@ GitHub Actions runs these workflows:
 Dependabot proposes updates for Maven dependencies and actions monthly.
 
 To publish a release, push a tag named after the version, e.g. `0.8.0` or `v0.8.0`. The Build workflow then builds
-the plugin with the tag as version (a leading `v` is dropped) and creates a GitHub release with `proxmox.hpi`
+the plugin with the tag as version (a leading `v` is dropped) and creates a GitHub release with `proxmox-<version>.hpi`
 attached.
 
 ## Changelog
