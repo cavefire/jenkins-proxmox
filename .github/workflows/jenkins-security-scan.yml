@@ -18,4 +18,5 @@ jobs:
     uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml@v2
     with:
       java-cache: 'maven' # Optionally enable use of a build dependency cache. Specify 'maven' or 'gradle' as appropriate.
-      # java-version: 21 # Optionally specify what version of Java to set up for the build, or remove to use a recent default.
+      # The plugin parent POM for Jenkins 2.319.x does not build on Java 21 (the default here).
+      java-version: '11'
